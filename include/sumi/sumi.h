@@ -1,29 +1,21 @@
 /**
  * @file sumi.h
- * @brief Sumi (墨) - A lightweight, CUDA-compatible graphics math library.
- * @version 1.0.0
+ * @brief Sumi (墨) - A lightweight, Cross-Platform (CUDA/Metal/CPU) graphics math library.
+ * @version 1.1.0
  * @namespace sumi
  */
 
 #pragma once
+
+// This header handles the compiler detection (NVCC vs Metal vs Clang/MSVC)
+// and defines the SUMI_CTX macros and native type aliases.
+#include "sumi_platform.h"
 
 #include <cmath>
 #include <algorithm>
 #include <iostream>
 #include <cstdint>
 #include <limits>
-
-// =================================================================================================
-// Platform / Compiler Definitions
-// =================================================================================================
-
-#ifdef __CUDACC__
-    #define SUMI_CTX __host__ __device__
-    #define SUMI_INLINE __forceinline__
-#else
-    #define SUMI_CTX
-    #define SUMI_INLINE inline
-#endif
 
 // Constant Definitions
 #ifndef SUMI_PI
@@ -39,16 +31,24 @@ namespace sumi {
 // =================================================================================================
 // Forward Declarations
 // =================================================================================================
-struct vec2;
-struct vec3;
-struct vec4;
-struct mat3;
-struct mat4;
+#if !SUMI_USE_NATIVE_TYPES
+    struct vec2;
+    struct vec3;
+    struct vec4;
+    struct mat3;
+    struct mat4;
+#endif
+
 struct Sampler2D;
 
 // =================================================================================================
-// Type Definitions
+// TYPE DEFINITIONS (CPU / CUDA)
 // =================================================================================================
+// If Metal (SUMI_USE_NATIVE_TYPES) is active, these structs are skipped 
+// because they are typedef'd to native SIMD types in sumi_platform.h
+// =================================================================================================
+
+#if !SUMI_USE_NATIVE_TYPES
 
 struct vec2 {
     union { float x, r, s; };
@@ -250,6 +250,12 @@ struct mat4 {
     }
 };
 
+#endif // !SUMI_USE_NATIVE_TYPES
+
+// =================================================================================================
+// Shared Utilities & Texture Support
+// =================================================================================================
+
 struct Sampler2D {
     int w, h;
     vec4* data;
@@ -258,6 +264,11 @@ struct Sampler2D {
 // =================================================================================================
 // Standard Math Functions
 // =================================================================================================
+// If using Native Types (Metal), these math functions are provided by the platform (metal_stdlib)
+// via the `using` declarations in sumi_platform.h.
+// We only define these for the custom CPU/CUDA structs.
+
+#if !SUMI_USE_NATIVE_TYPES
 
 // Scalar Wrappers
 SUMI_CTX inline float radians(float d) { return d * (SUMI_PI / 180.0f); }
@@ -453,6 +464,7 @@ SUMI_CTX inline mat4 transpose(const mat4& m) {
 }
 
 // Texture Sampling (Basic CPU Implementation)
+// Note: Metal uses texture2d<T> objects, so this function is only for the CPU implementation.
 SUMI_CTX inline vec4 texture(const Sampler2D& sampler, const vec2& uv) {
     if (!sampler.data) return vec4(0.0f, 0.0f, 0.0f, 1.0f);
     
@@ -486,6 +498,8 @@ inline std::ostream& operator<<(std::ostream& os, const vec4& v) {
     os << "(" << v.x << ", " << v.y << ", " << v.z << ", " << v.w << ")";
     return os;
 }
+
+#endif // !SUMI_USE_NATIVE_TYPES
 
 } // namespace sumi
 
