@@ -1,0 +1,5 @@
+module libsumi {
+    header "include/sumi/sumi.h"
+    link "sumi"
+    export *
+}

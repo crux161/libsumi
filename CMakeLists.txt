@@ -33,8 +33,6 @@ option(SUMI_BUILD_TESTS "Build the test suite" ON)
 if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME AND SUMI_BUILD_TESTS)
     enable_testing()
 
-    add_executable(sumi_test tests/test_suite.cpp)
-    
     # Link the test against the library (pulls in include paths and C++17 req)
     target_link_libraries(sumi_test PRIVATE sumi)
 
