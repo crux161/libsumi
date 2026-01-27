@@ -1,2 +1,8 @@
 # libsumi
-libsumi is a light-weight graphics library that attempts to emulate feature-parity with GLM (OpenGL Mathmatics)
+
+**Status:** Reserved / Pre-Alpha
+
+This is the core mathematics and logic library for the upcoming **GYOSHO** graphics ecosystem.
+Currently acting as a placeholder to secure the namespace.
+
+Please check back later for the initial release.
